@@ -28,7 +28,7 @@ export default function Home() {
   }, []);
   
   const videos = [
-    { id: "D8", src: "/D8.mp4", title: "Full Demo" },
+    { id: "D8", src: "/DTest.mp4", title: "Full Demo" },
     { id: "D1", src: "/D1.mov", title: "Product Generation" },
     { id: "D2", src: "/D2.mov", title: "Lifestyle Image Customization Window" },
     { id: "D3", src: "/D3.mov", title: "Keyword Generation Preview" },
