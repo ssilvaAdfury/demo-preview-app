@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Roboto } from "next/font/google";
 
 const roboto = Roboto({
@@ -11,21 +11,6 @@ const roboto = Roboto({
 
 export default function Home() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  
-  // Check if device is mobile based on screen width
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, []);
   
   const videos = [
     { id: "D8", src: "/DTest.mp4", title: "Full Demo" },
