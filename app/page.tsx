@@ -72,7 +72,7 @@ export default function Home() {
     >
       {/* Header section */}
       <div className="mb-6 sm:mb-10 text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3 text-white" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>Demo Gallery</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2 sm:mb-3 text-white" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>Adobe Summit Demo Gallery</h1>
         <h2 className="text-lg sm:text-xl text-white mb-4 sm:mb-6" style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.7)' }}>
           Click on any video for a demo on individual features:
         </h2>
