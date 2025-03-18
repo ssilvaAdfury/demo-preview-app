@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Roboto } from "next/font/google";
 
 const roboto = Roboto({
@@ -11,6 +11,8 @@ const roboto = Roboto({
 
 export default function Home() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const videoRefs = useRef<{[key: string]: HTMLVideoElement | null}>({});
+  const [loadedThumbnails, setLoadedThumbnails] = useState<{[key: string]: boolean}>({});
   
   const videos = [
     { id: "D8", src: "/DTest.mp4", title: "Full Demo" },
@@ -22,6 +24,43 @@ export default function Home() {
     { id: "D6", src: "/D6.mov", title: "Ad Previews and Customization Window" },
     { id: "D7", src: "/D7.mov", title: "Organization and Generation History Preview" },
   ];
+
+  // Generate thumbnails for videos
+  useEffect(() => {
+    // Initialize the loaded thumbnails state
+    const initialLoadedState: {[key: string]: boolean} = {};
+    videos.forEach(video => {
+      initialLoadedState[video.id] = false;
+    });
+    setLoadedThumbnails(initialLoadedState);
+    
+    // Set up video refs to generate thumbnails
+    videos.forEach(video => {
+      const videoElement = videoRefs.current[video.id];
+      if (videoElement) {
+        // Force immediate load of video data
+        videoElement.load();
+        
+        // Add event listener to generate thumbnail once metadata is loaded
+        videoElement.addEventListener('loadeddata', () => {
+          // This seeks to 1.5 seconds into the video for a better thumbnail
+          videoElement.currentTime = 1.5;
+        });
+        
+        // Mark as loaded when a frame is available
+        videoElement.addEventListener('seeked', () => {
+          setLoadedThumbnails(prev => ({...prev, [video.id]: true}));
+        });
+      }
+    });
+  }, []);
+  
+  // Function to handle setting refs
+  const setVideoRef = (element: HTMLVideoElement | null, id: string) => {
+    if (element) {
+      videoRefs.current[id] = element;
+    }
+  };
 
   return (
     <main 
@@ -44,24 +83,36 @@ export default function Home() {
         {videos.map((video) => (
           <div 
             key={video.id} 
-            className="relative aspect-video bg-black rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition shadow-xl"
+            className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition shadow-xl"
             onClick={() => setSelectedVideo(video.src)}
             style={{ boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)' }}
           >
+            {!loadedThumbnails[video.id] && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 text-white text-opacity-80 font-medium z-10">
+                Loading preview...
+              </div>
+            )}
             <video 
+              ref={(el) => setVideoRef(el, video.id)}
               src={video.src}
               className="w-full h-full object-cover"
               controls={false}
               muted
-              preload="metadata"
+              preload="auto"
               playsInline
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/30 flex items-center justify-center">
+            {/* Overlay with gradient for better title visibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10"></div>
+            
+            {/* Play button */}
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-sm">
                 <div className="w-0 h-0 border-y-6 sm:border-y-8 border-y-transparent border-l-8 sm:border-l-12 border-l-white ml-1"></div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-3 py-2 text-white text-xs sm:text-sm" style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' }}>
+            
+            {/* Video title */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-3 py-2 text-white text-xs sm:text-sm z-20" style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.8)' }}>
               {video.title}
             </div>
           </div>
@@ -72,7 +123,7 @@ export default function Home() {
       {selectedVideo && (
         <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
           <button 
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white z-10 bg-black/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-black/80"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white z-10 bg-black/50 rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-black/80 backdrop-blur-sm"
             onClick={() => setSelectedVideo(null)}
             aria-label="Close video"
           >
